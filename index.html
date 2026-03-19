@@ -3,24 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>情緒拼圖互動教學遊戲</title>
+  <title>情緒拼圖教學遊戲｜前台 + 後台管理</title>
   <style>
     :root {
-      --bg: linear-gradient(180deg, #fff9f3 0%, #ffeef3 48%, #f1fbf2 100%);
-      --card: rgba(255, 255, 255, 0.92);
-      --pink: #ffb6c9;
-      --rose: #ff8fb1;
-      --cream: #ffe4bf;
-      --milk-tea: #d9b58b;
-      --green: #76c893;
-      --mint: #b7efc5;
-      --red: #ef7a85;
-      --text: #5b4a42;
-      --shadow: 0 14px 30px rgba(193, 124, 146, 0.16);
-      --radius: 28px;
+      --bg: linear-gradient(180deg, #fff9f2 0%, #fff0f6 46%, #f2fbf4 100%);
+      --card: rgba(255, 255, 255, 0.94);
+      --pink: #ff9bbd;
+      --rose: #ef7fa3;
+      --mint: #bcebc6;
+      --green: #67bf84;
+      --cream: #ffe3bf;
+      --milk: #d6b18c;
+      --red: #ef7b87;
+      --text: #5a4a42;
+      --soft-border: rgba(255, 170, 194, 0.42);
+      --shadow: 0 16px 34px rgba(199, 134, 155, 0.17);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
     }
 
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -30,193 +34,293 @@
       min-height: 100vh;
     }
 
-    button, input { font: inherit; }
+    button, input, textarea, select { font: inherit; }
 
     .app {
-      max-width: 1180px;
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 20px 16px 40px;
+      padding: 18px 14px 42px;
     }
 
-    .topbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .badge {
-      background: rgba(255,255,255,0.85);
-      border: 2px solid rgba(255, 182, 201, 0.65);
-      border-radius: 999px;
-      padding: 10px 16px;
-      font-weight: 700;
-      box-shadow: var(--shadow);
-    }
-
-    .title-card,
-    .feedback-card,
-    .reward-card,
-    .legend {
+    .shell,
+    .card,
+    .panel,
+    .mode-tab,
+    .question-card,
+    .admin-list-item,
+    .stat-pill,
+    .preview-card {
       background: var(--card);
-      border-radius: var(--radius);
       box-shadow: var(--shadow);
+      border-radius: var(--radius-xl);
     }
 
-    .title-card {
-      padding: 20px;
-      margin-bottom: 18px;
-      border: 3px solid rgba(255, 182, 201, 0.45);
+    .shell {
+      padding: 18px;
+      border: 3px solid rgba(255, 182, 201, 0.4);
     }
 
-    .title-card h1 {
-      margin: 0 0 10px;
-      font-size: clamp(1.5rem, 2vw, 2.1rem);
-      color: #d36a8b;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
     }
 
-    .scenario {
+    .title-wrap h1 {
+      margin: 0 0 8px;
+      color: #d05f89;
+      font-size: clamp(1.6rem, 2vw, 2.3rem);
+    }
+
+    .title-wrap p {
       margin: 0;
-      font-size: clamp(1.15rem, 2.5vw, 1.5rem);
       line-height: 1.7;
       font-weight: 700;
+      color: #7a665d;
     }
 
-    .game-grid {
+    .pill-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .stat-pill {
+      border-radius: 999px;
+      padding: 10px 16px;
+      border: 2px solid var(--soft-border);
+      font-weight: 800;
+      background: rgba(255,255,255,0.87);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .mode-tab {
+      border: 2px solid transparent;
+      padding: 14px 18px;
+      cursor: pointer;
+      flex: 1 1 220px;
+      min-width: 200px;
+      text-align: left;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .mode-tab:hover,
+    .mode-tab:focus-visible,
+    .mode-tab.active {
+      transform: translateY(-2px);
+      border-color: rgba(255, 143, 177, 0.7);
+      outline: none;
+    }
+
+    .mode-tab strong {
+      display: block;
+      color: #c4517b;
+      margin-bottom: 4px;
+      font-size: 1.05rem;
+    }
+
+    .mode-tab span {
+      line-height: 1.6;
+      font-weight: 700;
+      color: #735f57;
+      font-size: 0.95rem;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .game-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
       gap: 18px;
     }
 
-    .puzzle-area {
+    .question-card {
+      padding: 18px;
+      border: 3px solid rgba(255, 182, 201, 0.46);
+    }
+
+    .question-card h2,
+    .panel h2,
+    .section-title {
+      margin: 0 0 10px;
+      color: #cf638c;
+      font-size: 1.25rem;
+    }
+
+    .question-text {
+      margin: 0;
+      font-size: clamp(1.12rem, 2vw, 1.45rem);
+      line-height: 1.8;
+      font-weight: 800;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #fff5ef;
+      border: 2px solid rgba(214, 177, 140, 0.42);
+      font-weight: 800;
+      color: #9a6a52;
+    }
+
+    .puzzle-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 18px;
     }
 
-    .character-card {
+    .player-card {
       position: relative;
       overflow: hidden;
-      background: var(--card);
-      border: 3px solid rgba(118, 200, 147, 0.2);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
       padding: 20px 18px 18px;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      border-radius: var(--radius-xl);
+      border: 3px solid rgba(103, 191, 132, 0.2);
+      background: var(--card);
+      box-shadow: var(--shadow);
       cursor: pointer;
-      user-select: none;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
-    .character-card:hover,
-    .character-card:focus-visible,
-    .character-card.active {
-      transform: translateY(-4px) scale(1.01);
+    .player-card:hover,
+    .player-card:focus-visible,
+    .player-card.active {
+      transform: translateY(-3px);
       border-color: rgba(255, 143, 177, 0.55);
-      box-shadow: 0 18px 28px rgba(255, 143, 177, 0.23);
+      box-shadow: 0 16px 30px rgba(255, 143, 177, 0.24);
       outline: none;
     }
 
-    .puzzle-piece {
+    .puzzle-deco {
       position: absolute;
-      width: 88px;
-      height: 88px;
-      opacity: 0.14;
-      background: radial-gradient(circle at 30% 30%, #fff9f3 0%, #ffd4de 70%, #ffc2d1 100%);
+      width: 82px;
+      height: 82px;
+      opacity: 0.15;
+      background: radial-gradient(circle at 30% 30%, #fffdf7 0%, #ffd5e1 70%, #ffc2d0 100%);
       clip-path: path('M 16 0 C 24 0, 28 7, 28 15 C 28 22, 35 28, 44 28 C 53 28, 60 22, 60 15 C 60 7, 64 0, 72 0 L 88 0 L 88 16 C 88 24, 81 28, 73 28 C 66 28, 60 35, 60 44 C 60 53, 66 60, 73 60 C 81 60, 88 64, 88 72 L 88 88 L 72 88 C 64 88, 60 81, 60 73 C 60 66, 53 60, 44 60 C 35 60, 28 66, 28 73 C 28 81, 24 88, 16 88 L 0 88 L 0 72 C 0 64, 7 60, 15 60 C 22 60, 28 53, 28 44 C 28 35, 22 28, 15 28 C 7 28, 0 24, 0 16 L 0 0 Z');
     }
 
-    .piece-1 { top: -18px; right: -20px; }
-    .piece-2 { bottom: -20px; left: -18px; }
+    .puzzle-deco.one { top: -16px; right: -18px; }
+    .puzzle-deco.two { bottom: -18px; left: -16px; }
 
-    .name-tag {
+    .name-chip {
+      position: relative;
+      z-index: 1;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: #fff7fb;
       border-radius: 999px;
       padding: 8px 12px;
+      background: #fff8fb;
+      border: 2px solid rgba(255, 182, 201, 0.36);
       font-weight: 800;
-      color: #c95d83;
+      color: #c4547d;
       margin-bottom: 12px;
-      border: 2px solid rgba(255, 182, 201, 0.38);
-      position: relative;
-      z-index: 1;
     }
 
-    .avatar {
+    .avatar-frame {
       position: relative;
       z-index: 1;
-      width: min(100%, 250px);
+      width: min(100%, 240px);
       aspect-ratio: 1 / 1;
+      border-radius: 26px;
       margin: 0 auto 12px;
-      border-radius: 28px;
-      background: linear-gradient(180deg, #dff7e3 0%, #fff3f8 100%);
+      border: 3px dashed rgba(201, 93, 131, 0.26);
+      background: linear-gradient(180deg, #dff7e4 0%, #fff3f8 100%);
       display: grid;
       place-items: center;
-      border: 3px dashed rgba(201, 93, 131, 0.25);
+      overflow: hidden;
     }
 
-    .avatar svg {
-      width: 88%;
-      height: 88%;
-      overflow: visible;
-      filter: drop-shadow(0 8px 8px rgba(0,0,0,0.07));
+    .avatar-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .role-hint {
+    .role-note {
       position: relative;
       z-index: 1;
-      text-align: center;
       margin: 0 0 14px;
-      font-size: 1rem;
+      min-height: 2.8em;
+      text-align: center;
       font-weight: 700;
-      color: #7e675c;
-      min-height: 3em;
+      line-height: 1.6;
+      color: #7a665d;
     }
 
-    .slider-wrap {
-      position: relative;
-      z-index: 1;
+    .slider-box,
+    .feedback-box,
+    .support-box,
+    .admin-toolbar,
+    .admin-form,
+    .admin-list,
+    .preview-card,
+    .import-box,
+    .empty-state {
       background: #fffdf8;
-      border-radius: 22px;
-      padding: 12px 12px 14px;
-      border: 2px solid rgba(217, 181, 139, 0.25);
+      border-radius: var(--radius-lg);
+      border: 2px solid rgba(214, 177, 140, 0.22);
     }
+
+    .slider-box,
+    .feedback-box,
+    .support-box,
+    .admin-toolbar,
+    .admin-form,
+    .admin-list,
+    .preview-card,
+    .import-box,
+    .empty-state { padding: 16px; }
 
     .slider-head {
       display: flex;
       justify-content: space-between;
+      gap: 10px;
       align-items: center;
-      gap: 8px;
       margin-bottom: 8px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
-    .value-chip {
-      min-width: 72px;
+    .value-tag {
+      min-width: 86px;
       text-align: center;
       border-radius: 999px;
-      background: rgba(255, 182, 201, 0.18);
       padding: 6px 10px;
-      color: #a85171;
+      background: rgba(255, 155, 189, 0.18);
+      color: #b24f73;
     }
 
-    .meter-labels {
+    .meter-legend,
+    .tiny-text,
+    .helper-text,
+    .field-help,
+    .list-meta {
+      color: #7f7169;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .meter-legend {
       display: flex;
       justify-content: space-between;
-      font-size: 0.9rem;
+      gap: 10px;
       margin-top: 6px;
-      color: #7c6d67;
-      font-weight: 700;
+      font-size: 0.92rem;
     }
 
     input[type="range"] {
@@ -225,8 +329,8 @@
       width: 100%;
       height: 18px;
       border-radius: 999px;
+      background: linear-gradient(90deg, #73c88e 0%, #dbf5e1 28%, #f3ead7 50%, #ffd1d1 70%, #ef7b87 100%);
       outline: none;
-      background: linear-gradient(90deg, #84d8a4 0%, #d7f3df 30%, #f4e7cf 50%, #ffd0d0 70%, #ef7a85 100%);
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
     }
 
@@ -237,10 +341,9 @@
       height: 30px;
       border-radius: 50%;
       background: #fff;
-      border: 4px solid #ff9fbf;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      border: 4px solid #ff9bbd;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.16);
       cursor: grab;
-      transition: transform 0.15s ease;
     }
 
     input[type="range"]::-moz-range-thumb {
@@ -248,33 +351,33 @@
       height: 30px;
       border-radius: 50%;
       background: #fff;
-      border: 4px solid #ff9fbf;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      border: 4px solid #ff9bbd;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.16);
       cursor: grab;
-      transition: transform 0.15s ease;
     }
 
-    input[type="range"]:active::-webkit-slider-thumb,
-    input[type="range"]:active::-moz-range-thumb {
-      transform: scale(1.07);
-      cursor: grabbing;
-    }
-
-    .action-row {
+    .action-row,
+    .button-row,
+    .toolbar-actions,
+    .data-actions,
+    .preview-avatars,
+    .reward-strip {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 18px;
     }
+
+    .button-row,
+    .action-row,
+    .toolbar-actions,
+    .data-actions { margin-top: 14px; }
 
     .btn {
       border: none;
       border-radius: 999px;
-      padding: 14px 24px;
-      font-size: 1rem;
-      font-weight: 800;
+      padding: 13px 22px;
       cursor: pointer;
+      font-weight: 800;
       transition: transform 0.16s ease, filter 0.16s ease;
       box-shadow: var(--shadow);
     }
@@ -282,60 +385,30 @@
     .btn:hover,
     .btn:focus-visible {
       transform: translateY(-2px);
-      filter: brightness(1.02);
+      filter: brightness(1.03);
       outline: none;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #ff9abb 0%, #ffcf95 100%);
-      color: #fff;
+    .btn-primary { background: linear-gradient(135deg, #ff9bbd 0%, #ffcb91 100%); color: #fff; }
+    .btn-secondary { background: linear-gradient(135deg, #d9f6e0 0%, #aedeaf 100%); color: #42614d; }
+    .btn-ghost { background: rgba(255,255,255,0.9); color: #8c6f63; border: 2px solid rgba(214, 177, 140, 0.3); }
+    .btn-danger { background: linear-gradient(135deg, #ffb2bb 0%, #ef7b87 100%); color: #fff; }
+
+    .game-support-grid,
+    .admin-grid,
+    .preview-grid,
+    .feedback-grid {
+      display: grid;
+      gap: 18px;
     }
 
-    .btn-secondary {
-      background: linear-gradient(135deg, #d9f6df 0%, #afddb3 100%);
-      color: #40604c;
-    }
-
-    .feedback-card,
-    .reward-card,
-    .legend {
-      padding: 18px;
-    }
-
-    .feedback-card h2,
-    .reward-card h2,
-    .legend h2 {
-      margin: 0 0 10px;
-      font-size: 1.2rem;
-      color: #d06088;
-    }
-
-    .feedback-card p,
-    .reward-card p,
-    .legend p {
-      margin: 0;
-      line-height: 1.7;
-      font-weight: 700;
+    .game-support-grid {
+      grid-template-columns: 1.2fr 0.9fr;
     }
 
     .feedback-grid {
-      display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .compare-box {
-      background: #fffaf4;
-      border-radius: 20px;
-      padding: 14px;
-      border: 2px solid rgba(217, 181, 139, 0.2);
-    }
-
-    .compare-box strong {
-      display: block;
-      color: #95684c;
-      margin-bottom: 8px;
+      margin-top: 12px;
     }
 
     .bar-track {
@@ -350,15 +423,13 @@
     .bar-fill {
       height: 100%;
       border-radius: 999px;
-      background: linear-gradient(90deg, #84d8a4, #ef7a85);
+      background: linear-gradient(90deg, #73c88e, #ef7b87);
     }
 
     .reward-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
       min-height: 44px;
+      margin-top: 12px;
+      align-items: center;
     }
 
     .sticker {
@@ -366,21 +437,12 @@
       animation: pop 0.35s ease;
     }
 
-    .legend {
-      display: grid;
-      gap: 8px;
-    }
-
     .legend-gradient {
-      height: 16px;
+      height: 15px;
       border-radius: 999px;
-      background: linear-gradient(90deg, #76c893 0%, #d9f6df 30%, #f2ead8 50%, #ffd0d0 70%, #ef7a85 100%);
       border: 2px solid rgba(0,0,0,0.06);
-    }
-
-    .tiny-note {
-      color: #7d716c;
-      font-size: 0.93rem;
+      background: linear-gradient(90deg, #73c88e 0%, #dbf5e1 28%, #f3ead7 50%, #ffd1d1 70%, #ef7b87 100%);
+      margin: 10px 0 8px;
     }
 
     .floating-stars {
@@ -388,243 +450,541 @@
       position: fixed;
       inset: 0;
       overflow: hidden;
-      z-index: 5;
+      z-index: 10;
     }
 
     .floating-star {
       position: absolute;
       font-size: 1.8rem;
-      animation: floatUp 1.2s ease forwards;
       opacity: 0;
+      animation: floatUp 1.2s ease forwards;
+    }
+
+    .admin-grid {
+      grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.1fr);
+      align-items: start;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .toolbar-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-weight: 800;
+      color: #7a5c50;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      border-radius: 16px;
+      border: 2px solid rgba(214, 177, 140, 0.28);
+      padding: 12px 13px;
+      background: #fff;
+      color: var(--text);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: rgba(255, 143, 177, 0.65);
+      box-shadow: 0 0 0 4px rgba(255, 155, 189, 0.12);
+    }
+
+    textarea { min-height: 110px; resize: vertical; }
+
+    .admin-list {
+      display: grid;
+      gap: 12px;
+      max-height: 860px;
+      overflow: auto;
+    }
+
+    .admin-list-item {
+      padding: 14px;
+      border: 2px solid rgba(255, 182, 201, 0.26);
+      background: rgba(255,255,255,0.92);
+    }
+
+    .admin-item-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .admin-item-head h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: #c7547d;
+    }
+
+    .scenario-snippet {
+      margin: 8px 0;
+      line-height: 1.7;
+      font-weight: 700;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #fff3eb;
+      border: 1.8px solid rgba(214, 177, 140, 0.36);
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #9a6c55;
+    }
+
+    .preview-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .preview-avatar {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 22px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #dff7e4 0%, #fff3f8 100%);
+      border: 3px dashed rgba(201, 93, 131, 0.22);
+    }
+
+    .preview-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .import-box textarea {
+      min-height: 150px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      font-weight: 800;
+      color: #826d64;
     }
 
     .sr-only {
       position: absolute;
       width: 1px;
       height: 1px;
-      margin: -1px;
       padding: 0;
-      border: 0;
-      clip: rect(0 0 0 0);
+      margin: -1px;
       overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
     }
 
     @keyframes pop {
       0% { transform: scale(0.3); opacity: 0; }
-      80% { transform: scale(1.15); opacity: 1; }
+      80% { transform: scale(1.12); opacity: 1; }
       100% { transform: scale(1); opacity: 1; }
     }
 
     @keyframes floatUp {
-      0% { transform: translateY(20px) scale(0.5); opacity: 0; }
+      0% { transform: translateY(22px) scale(0.55); opacity: 0; }
       20% { opacity: 1; }
-      100% { transform: translateY(-90px) scale(1.15); opacity: 0; }
+      100% { transform: translateY(-96px) scale(1.15); opacity: 0; }
     }
 
-    @media (max-width: 860px) {
-      .puzzle-area,
-      .feedback-grid {
+    @media (max-width: 1040px) {
+      .admin-grid,
+      .game-support-grid,
+      .puzzle-grid,
+      .feedback-grid,
+      .field-grid,
+      .preview-grid,
+      .toolbar-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 560px) {
-      .app { padding: 14px 12px 30px; }
-      .title-card,
-      .feedback-card,
-      .reward-card,
-      .legend,
-      .character-card { border-radius: 22px; }
-      .scenario { font-size: 1.05rem; }
+    @media (max-width: 620px) {
+      .app { padding: 14px 10px 26px; }
+      .shell,
+      .panel,
+      .mode-tab,
+      .question-card,
+      .player-card,
+      .admin-list-item { border-radius: 22px; }
       .btn { width: 100%; }
-      .topbar { align-items: stretch; }
+      .meter-legend { flex-direction: column; }
     }
   </style>
 </head>
 <body>
   <div class="floating-stars" id="floatingStars" aria-hidden="true"></div>
+
   <main class="app">
-    <div class="topbar">
-      <div class="badge-row">
-        <div class="badge" id="questionBadge">第 1 題</div>
-        <div class="badge" id="scoreBadge">星星 0 顆</div>
-        <div class="badge" id="streakBadge">連續鼓勵 0 次</div>
-      </div>
-      <div class="badge">拖動溫度計，判斷誰比較需要負責</div>
-    </div>
+    <div class="shell">
+      <header class="header">
+        <div class="title-wrap">
+          <h1>情緒拼圖教學遊戲</h1>
+          <p>前台提供學生練習「衝突情境與同理心」，後台提供老師編修題庫、預覽圖片、匯入匯出 JSON 與 localStorage 儲存。</p>
+        </div>
+        <div class="pill-row">
+          <div class="stat-pill" id="bankCountPill">題庫 0 題</div>
+          <div class="stat-pill" id="storagePill">localStorage 已啟用</div>
+          <div class="stat-pill" id="modePill">目前模式：前台遊戲</div>
+        </div>
+      </header>
 
-    <section class="title-card" aria-live="polite">
-      <h1>情緒拼圖互動教學遊戲</h1>
-      <p class="scenario" id="scenarioText">載入題目中…</p>
-    </section>
+      <nav class="tabs" aria-label="模式切換">
+        <button class="mode-tab active" data-view="studentView" id="studentTab" type="button">
+          <strong>🎮 前台遊戲</strong>
+          <span>給學生操作，隨機出題、拖拉責任溫度計、得到鼓勵回饋與星星貼紙。</span>
+        </button>
+        <button class="mode-tab" data-view="adminView" id="adminTab" type="button">
+          <strong>🧑‍🏫 後台管理</strong>
+          <span>給老師新增、修改、刪除、搜尋、篩選、預覽、匯入與匯出題庫。</span>
+        </button>
+      </nav>
 
-    <section class="game-grid">
-      <div class="puzzle-area">
-        <article class="character-card active" id="leftCard" tabindex="0" aria-label="左邊角色拼圖">
-          <div class="puzzle-piece piece-1"></div>
-          <div class="puzzle-piece piece-2"></div>
-          <div class="name-tag">🧩 <span id="leftName">左邊角色</span></div>
-          <div class="avatar" id="leftAvatar"></div>
-          <p class="role-hint" id="leftHint"></p>
-          <div class="slider-wrap">
-            <div class="slider-head">
-              <span>責任溫度計</span>
-              <span class="value-chip" id="leftValue">50%</span>
-            </div>
-            <label class="sr-only" for="leftSlider">左邊角色責任比例</label>
-            <input id="leftSlider" type="range" min="0" max="100" value="50" />
-            <div class="meter-labels"><span>綠色：較合理</span><span>紅色：較不恰當</span></div>
+      <section class="view active" id="studentView">
+        <div class="game-layout">
+          <article class="question-card">
+            <div class="category-badge" id="studentCategory">🌈 題目分類</div>
+            <h2>第 <span id="questionIndex">1</span> 題</h2>
+            <p class="question-text" id="scenarioText">載入題目中…</p>
+          </article>
+
+          <div class="puzzle-grid">
+            <article class="player-card active" id="leftCard" tabindex="0" aria-label="左邊角色拼圖">
+              <div class="puzzle-deco one"></div>
+              <div class="puzzle-deco two"></div>
+              <div class="name-chip">🧩 <span id="leftName">左邊角色</span></div>
+              <div class="avatar-frame"><img id="leftImage" alt="左邊角色插圖" /></div>
+              <p class="role-note" id="leftHint"></p>
+              <div class="slider-box">
+                <div class="slider-head"><span>責任溫度計</span><span class="value-tag" id="leftValue">50%</span></div>
+                <label class="sr-only" for="leftSlider">左邊角色責任比例</label>
+                <input id="leftSlider" type="range" min="0" max="100" value="50" />
+                <div class="meter-legend"><span>綠色：較合理</span><span>紅色：較不恰當</span></div>
+              </div>
+            </article>
+
+            <article class="player-card" id="rightCard" tabindex="0" aria-label="右邊角色拼圖">
+              <div class="puzzle-deco one"></div>
+              <div class="puzzle-deco two"></div>
+              <div class="name-chip">🧩 <span id="rightName">右邊角色</span></div>
+              <div class="avatar-frame"><img id="rightImage" alt="右邊角色插圖" /></div>
+              <p class="role-note" id="rightHint"></p>
+              <div class="slider-box">
+                <div class="slider-head"><span>責任溫度計</span><span class="value-tag" id="rightValue">50%</span></div>
+                <label class="sr-only" for="rightSlider">右邊角色責任比例</label>
+                <input id="rightSlider" type="range" min="0" max="100" value="50" />
+                <div class="meter-legend"><span>綠色：較合理</span><span>紅色：較不恰當</span></div>
+              </div>
+            </article>
           </div>
-        </article>
 
-        <article class="character-card" id="rightCard" tabindex="0" aria-label="右邊角色拼圖">
-          <div class="puzzle-piece piece-1"></div>
-          <div class="puzzle-piece piece-2"></div>
-          <div class="name-tag">🧩 <span id="rightName">右邊角色</span></div>
-          <div class="avatar" id="rightAvatar"></div>
-          <p class="role-hint" id="rightHint"></p>
-          <div class="slider-wrap">
-            <div class="slider-head">
-              <span>責任溫度計</span>
-              <span class="value-chip" id="rightValue">50%</span>
-            </div>
-            <label class="sr-only" for="rightSlider">右邊角色責任比例</label>
-            <input id="rightSlider" type="range" min="0" max="100" value="50" />
-            <div class="meter-labels"><span>綠色：較合理</span><span>紅色：較不恰當</span></div>
+          <div class="action-row">
+            <button class="btn btn-primary" type="button" id="submitAnswerBtn">確認答案</button>
+            <button class="btn btn-secondary" type="button" id="resetAnswerBtn">重設本題</button>
+            <button class="btn btn-ghost" type="button" id="newRandomBtn">換一題</button>
           </div>
-        </article>
-      </div>
 
-      <div class="action-row">
-        <button class="btn btn-primary" id="submitBtn">確認答案</button>
-        <button class="btn btn-secondary" id="resetBtn">重新調整本題</button>
-      </div>
+          <div class="game-support-grid">
+            <section class="feedback-box">
+              <h2>老師的小提醒</h2>
+              <p id="feedbackText">先看看情境，再拖動左右兩個角色的責任比例。</p>
+              <div class="feedback-grid">
+                <div>
+                  <strong id="leftCompareTitle">左邊角色</strong>
+                  <div id="leftCompareText" class="helper-text">你的判斷：50%｜參考答案：50%</div>
+                  <div class="bar-track"><div class="bar-fill" id="leftBar" style="width:50%"></div></div>
+                </div>
+                <div>
+                  <strong id="rightCompareTitle">右邊角色</strong>
+                  <div id="rightCompareText" class="helper-text">你的判斷：50%｜參考答案：50%</div>
+                  <div class="bar-track"><div class="bar-fill" id="rightBar" style="width:50%"></div></div>
+                </div>
+              </div>
+            </section>
 
-      <section class="feedback-card" aria-live="polite">
-        <h2>老師的小提醒</h2>
-        <p id="feedbackText">先看看情境，再拖動兩個角色的責任溫度計。</p>
-        <div class="feedback-grid">
-          <div class="compare-box">
-            <strong id="leftCompareTitle">左邊角色</strong>
-            <div id="leftCompareText">你的判斷：50%｜參考答案：50%</div>
-            <div class="bar-track"><div class="bar-fill" id="leftBar" style="width:50%"></div></div>
-          </div>
-          <div class="compare-box">
-            <strong id="rightCompareTitle">右邊角色</strong>
-            <div id="rightCompareText">你的判斷：50%｜參考答案：50%</div>
-            <div class="bar-track"><div class="bar-fill" id="rightBar" style="width:50%"></div></div>
+            <section class="support-box">
+              <h2>鼓勵與提示</h2>
+              <div class="pill-row">
+                <div class="stat-pill" id="starCountPill">星星 0 顆</div>
+                <div class="stat-pill" id="streakPill">連續鼓勵 0 次</div>
+              </div>
+              <div class="legend-gradient"></div>
+              <p class="tiny-text">責任比例會同步調整成 100% 總和，幫助孩子更清楚比較兩個角色在衝突中的責任分配。</p>
+              <p class="tiny-text" id="rewardText">接近答案時，會出現星星雨和貼紙獎勵！</p>
+              <div class="reward-strip" id="rewardStrip" aria-label="貼紙獎勵區"></div>
+            </section>
           </div>
         </div>
       </section>
 
-      <section class="reward-card">
-        <h2>獎勵貼紙</h2>
-        <p id="rewardText">每次作答都會累積鼓勵，接近答案時還會出現星星雨！</p>
-        <div class="reward-strip" id="rewardStrip" aria-label="獎勵貼紙區"></div>
-      </section>
+      <section class="view" id="adminView">
+        <div class="admin-grid">
+          <div class="panel">
+            <h2>後台管理</h2>
+            <p class="helper-text">老師可以在這裡編修題目、設定角色名稱與圖片、管理分類、搜尋篩選，以及匯入匯出 JSON 備份題庫。</p>
 
-      <section class="legend">
-        <h2>怎麼看溫度計？</h2>
-        <div class="legend-gradient"></div>
-        <p>越靠左越像是在說「這個人做得比較合理」；越靠右越像是在說「這個人比較需要負責」。</p>
-        <p class="tiny-note">提示：同理心不是只有找誰對誰錯，也要想想每個人的感受和可以怎麼做得更好。</p>
+            <div class="admin-toolbar">
+              <div class="field-grid">
+                <div class="field">
+                  <label for="searchInput">搜尋題目</label>
+                  <input id="searchInput" type="text" placeholder="搜尋情境、角色名稱或分類" />
+                </div>
+                <div class="field">
+                  <label for="filterCategory">分類篩選</label>
+                  <select id="filterCategory">
+                    <option value="all">全部分類</option>
+                  </select>
+                </div>
+              </div>
+              <div class="toolbar-grid">
+                <button class="btn btn-secondary" type="button" id="newQuestionBtn">新增新題目</button>
+                <button class="btn btn-ghost" type="button" id="seedResetBtn">還原預設題庫</button>
+                <button class="btn btn-ghost" type="button" id="previewCurrentBtn">預覽目前表單</button>
+              </div>
+            </div>
+
+            <section class="admin-form" aria-labelledby="formTitle">
+              <h2 id="formTitle">題目編輯表單</h2>
+              <div class="field-grid">
+                <div class="field full">
+                  <label for="scenarioInput">情境文字</label>
+                  <textarea id="scenarioInput" placeholder="例如：小明被同學撞到後很生氣，馬上推了對方一下。"></textarea>
+                </div>
+                <div class="field">
+                  <label for="categoryInput">題目分類</label>
+                  <select id="categoryInput"></select>
+                </div>
+                <div class="field">
+                  <label for="questionIdInput">題目 ID</label>
+                  <input id="questionIdInput" type="text" readonly />
+                </div>
+                <div class="field">
+                  <label for="leftNameInput">左邊角色名稱</label>
+                  <input id="leftNameInput" type="text" placeholder="例如：小明" />
+                </div>
+                <div class="field">
+                  <label for="rightNameInput">右邊角色名稱</label>
+                  <input id="rightNameInput" type="text" placeholder="例如：同學" />
+                </div>
+                <div class="field">
+                  <label for="leftHintInput">左邊角色提示</label>
+                  <input id="leftHintInput" type="text" placeholder="例如：被撞到後生氣推人" />
+                </div>
+                <div class="field">
+                  <label for="rightHintInput">右邊角色提示</label>
+                  <input id="rightHintInput" type="text" placeholder="例如：走路太急撞到別人" />
+                </div>
+                <div class="field">
+                  <label for="leftImageInput">左邊角色圖片網址</label>
+                  <input id="leftImageInput" type="url" placeholder="可貼上圖片網址或 data:image..." />
+                  <div class="field-help">若留空，系統會自動產生可愛插圖。</div>
+                </div>
+                <div class="field">
+                  <label for="rightImageInput">右邊角色圖片網址</label>
+                  <input id="rightImageInput" type="url" placeholder="可貼上圖片網址或 data:image..." />
+                  <div class="field-help">若留空，系統會自動產生可愛插圖。</div>
+                </div>
+                <div class="field">
+                  <label for="leftAnswerInput">左方正確責任比例</label>
+                  <input id="leftAnswerInput" type="number" min="0" max="100" value="50" />
+                  <div class="field-help">輸入後右方會自動補成 100%。</div>
+                </div>
+                <div class="field">
+                  <label for="rightAnswerInput">右方正確責任比例</label>
+                  <input id="rightAnswerInput" type="number" min="0" max="100" value="50" />
+                  <div class="field-help">輸入後左方會自動補成 100%。</div>
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="btn btn-primary" type="button" id="saveQuestionBtn">儲存題目</button>
+                <button class="btn btn-secondary" type="button" id="duplicateQuestionBtn">複製成新題目</button>
+                <button class="btn btn-danger" type="button" id="deleteQuestionBtn">刪除目前題目</button>
+                <button class="btn btn-ghost" type="button" id="clearFormBtn">清空表單</button>
+              </div>
+            </section>
+
+            <section class="import-box">
+              <h2>JSON 備份與匯入</h2>
+              <p class="helper-text">你可以匯出目前題庫成 JSON 檔案備份，或貼上 JSON 內容重新匯入。匯入後會同步存入 localStorage。</p>
+              <div class="data-actions">
+                <button class="btn btn-secondary" type="button" id="exportJsonBtn">匯出 JSON</button>
+                <button class="btn btn-ghost" type="button" id="downloadJsonBtn">下載 JSON 檔</button>
+                <button class="btn btn-primary" type="button" id="importJsonBtn">匯入 JSON</button>
+              </div>
+              <div class="field" style="margin-top: 12px;">
+                <label for="jsonTextarea">JSON 內容</label>
+                <textarea id="jsonTextarea" placeholder='可貼上 [{"id":"q1", ...}] 格式的題庫 JSON'></textarea>
+              </div>
+            </section>
+          </div>
+
+          <div class="panel">
+            <h2>題目列表與預覽</h2>
+            <p class="helper-text">先用搜尋或分類找到題目，再點選載入編輯；下方預覽會顯示老師目前表單中的題目樣子。</p>
+
+            <section class="preview-card">
+              <div class="category-badge" id="previewCategory">🌈 預覽分類</div>
+              <p class="question-text" id="previewScenario">請在左側輸入情境文字。</p>
+              <div class="preview-grid">
+                <div>
+                  <div class="name-chip">🧩 <span id="previewLeftName">左邊角色</span></div>
+                  <div class="preview-avatar"><img id="previewLeftImage" alt="預覽左邊角色圖片" /></div>
+                  <p class="helper-text" id="previewLeftMeta">提示與責任比例會顯示在這裡。</p>
+                </div>
+                <div>
+                  <div class="name-chip">🧩 <span id="previewRightName">右邊角色</span></div>
+                  <div class="preview-avatar"><img id="previewRightImage" alt="預覽右邊角色圖片" /></div>
+                  <p class="helper-text" id="previewRightMeta">提示與責任比例會顯示在這裡。</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="admin-list" id="questionList" aria-live="polite"></section>
+          </div>
+        </div>
       </section>
-    </section>
+    </div>
   </main>
 
   <script>
-    const scenarios = [
-      { text: '小明被同學撞到後很生氣，馬上推了對方一下。', left: '小明', right: '同學', leftRole: '被撞到後生氣推人', rightRole: '走路太急撞到別人', answer: [70, 30] },
-      { text: '兩個同學都想玩同一顆球，小華直接把球搶走。', left: '小華', right: '同學', leftRole: '直接搶走球', rightRole: '也想玩球但沒先商量', answer: [75, 25] },
-      { text: '上課時，小安一直講話，老師提醒後他還大聲回嘴。', left: '小安', right: '老師', leftRole: '不聽提醒還回嘴', rightRole: '提醒學生安靜上課', answer: [85, 15] },
-      { text: '妹妹不小心碰倒積木，哥哥立刻罵她很笨。', left: '哥哥', right: '妹妹', leftRole: '用難聽話罵人', rightRole: '不小心碰倒積木', answer: [80, 20] },
-      { text: '媽媽提醒阿豪要收玩具，阿豪故意說「我不要！」', left: '阿豪', right: '媽媽', leftRole: '故意不收玩具', rightRole: '提醒要整理', answer: [85, 15] },
-      { text: '同學考不好在哭，小傑卻哈哈笑說「你好笨喔」。', left: '小傑', right: '同學', leftRole: '嘲笑別人的難過', rightRole: '因考不好而哭', answer: [90, 10] },
-      { text: '老師正在說明活動規則，小宇一直插話說自己最厲害。', left: '小宇', right: '老師', leftRole: '一直插話', rightRole: '說明班級活動', answer: [80, 20] },
-      { text: '弟弟想借色筆，姐姐沒回答就把色筆抱在懷裡不給碰。', left: '姐姐', right: '弟弟', leftRole: '不說明就拒絕分享', rightRole: '想借色筆沒先問清楚', answer: [65, 35] },
-      { text: '小美排隊時被後面同學一直擠，她轉身大叫「不要靠近我！」', left: '小美', right: '後面同學', leftRole: '大聲吼叫', rightRole: '排隊一直往前擠', answer: [40, 60] },
-      { text: '爸媽正在講電話，小樂一直拉著媽媽要她陪玩。', left: '小樂', right: '媽媽', leftRole: '沒有等待，持續打擾', rightRole: '正在忙碌沒先說明', answer: [70, 30] },
-      { text: '小志借了同學橡皮擦，結果故意藏起來不還。', left: '小志', right: '同學', leftRole: '故意不還東西', rightRole: '借出橡皮擦', answer: [95, 5] },
-      { text: '老師請大家安靜畫圖，小琳覺得無聊就一直拍桌子。', left: '小琳', right: '老師', leftRole: '故意拍桌子影響別人', rightRole: '帶領課堂活動', answer: [85, 15] },
-      { text: '哥哥心情不好把門關很大聲，弟弟學他也用力甩門。', left: '哥哥', right: '弟弟', leftRole: '先大聲甩門', rightRole: '跟著模仿甩門', answer: [55, 45] },
-      { text: '同學不小心把水打翻在小杰桌上，小杰直接把對方的書丟地上。', left: '小杰', right: '同學', leftRole: '生氣把書丟地上', rightRole: '不小心打翻水', answer: [75, 25] },
-      { text: '外婆走路慢，小凱一直催她快一點，還翻白眼。', left: '小凱', right: '外婆', leftRole: '不體諒長輩行動慢', rightRole: '走路比較慢', answer: [90, 10] },
-      { text: '小安看到同學的新鉛筆很漂亮，沒問就直接拿去用。', left: '小安', right: '同學', leftRole: '沒問就拿別人東西', rightRole: '擁有自己的鉛筆', answer: [95, 5] },
-      { text: '家人正在休息，小福在客廳尖叫跑來跑去。', left: '小福', right: '家人', leftRole: '沒有注意別人正在休息', rightRole: '想安靜休息', answer: [90, 10] },
-      { text: '同學不會跳繩，小晴一直說「你怎麼那麼慢」。', left: '小晴', right: '同學', leftRole: '說話傷人', rightRole: '學習跳繩比較慢', answer: [90, 10] },
-      { text: '老師請小傑排好椅子，小傑說「為什麼都叫我做？」', left: '小傑', right: '老師', leftRole: '不願合作還抱怨', rightRole: '請同學幫忙整理', answer: [75, 25] },
-      { text: '妹妹拿錯哥哥的作業本，哥哥直接把妹妹手推開。', left: '哥哥', right: '妹妹', leftRole: '用推的方式處理', rightRole: '拿錯別人的作業本', answer: [65, 35] },
-      { text: '午餐時間，同學忘記帶湯匙，小豪故意把自己的藏起來不借。', left: '小豪', right: '同學', leftRole: '故意不幫忙', rightRole: '忘記帶湯匙', answer: [80, 20] },
-      { text: '小琪做勞作失敗很難過，旁邊同學說「反正你本來就不會」。', left: '旁邊同學', right: '小琪', leftRole: '沒有同理心還貶低人', rightRole: '因失敗感到難過', answer: [90, 10] },
-      { text: '爸爸提醒小恩先寫功課再看電視，小恩一直假裝沒聽到。', left: '小恩', right: '爸爸', leftRole: '逃避該做的事', rightRole: '提醒先完成功課', answer: [85, 15] },
-      { text: '兩位同學都在生氣，小川先說「對不起」，另一位還繼續罵。', left: '小川', right: '另一位同學', leftRole: '先嘗試道歉', rightRole: '持續責罵對方', answer: [25, 75] },
-      { text: '同學跌倒了，小怡看到卻說「好好笑」，沒有幫忙。', left: '小怡', right: '同學', leftRole: '嘲笑別人跌倒', rightRole: '不小心跌倒', answer: [90, 10] },
-      { text: '老師安排換位子，小成不高興，就把椅子踢得很大聲。', left: '小成', right: '老師', leftRole: '用踢椅子表達不滿', rightRole: '安排班級座位', answer: [85, 15] },
-      { text: '媽媽正在照顧生病的弟弟，小涵一直說媽媽偏心。', left: '小涵', right: '媽媽', leftRole: '沒有理解家人需求', rightRole: '照顧生病孩子', answer: [75, 25] },
-      { text: '小廷借同學剪刀後忘記還，同學提醒時他立刻還並道歉。', left: '小廷', right: '同學', leftRole: '忘記歸還但願意改正', rightRole: '提醒對方記得還', answer: [70, 30] },
-      { text: '排隊洗手時，小建一直插隊，前面的同學忍不住說「請你排後面」。', left: '小建', right: '前面同學', leftRole: '一直插隊', rightRole: '提醒要排隊', answer: [85, 15] },
-      { text: '阿嬤不會用手機，小芸很不耐煩地說「你都不會啦」。', left: '小芸', right: '阿嬤', leftRole: '沒有耐心又傷人', rightRole: '需要幫忙學手機', answer: [90, 10] },
-      { text: '老師提醒要輕聲，小豪卻故意學老師語氣逗同學笑。', left: '小豪', right: '老師', leftRole: '故意模仿取笑', rightRole: '提醒班級秩序', answer: [90, 10] },
-      { text: '妹妹想一起玩，哥哥說「不行」後還把門關起來。', left: '哥哥', right: '妹妹', leftRole: '拒絕又故意排擠', rightRole: '想一起玩', answer: [85, 15] },
-      { text: '小威忘了帶彩色筆，借用後有說謝謝也小心使用。', left: '小威', right: '同學', leftRole: '借用但有禮貌', rightRole: '願意借出彩色筆', answer: [45, 55] },
-      { text: '小庭發現同學午餐少一樣水果，就故意在旁邊炫耀自己有兩份。', left: '小庭', right: '同學', leftRole: '故意炫耀刺激別人', rightRole: '午餐水果較少', answer: [90, 10] },
-      { text: '爸爸在開車，後座的小羽一直拍椅背說快一點。', left: '小羽', right: '爸爸', leftRole: '不顧安全一直催促', rightRole: '專心開車', answer: [90, 10] },
-      { text: '同學說今天心情不好，小佳卻一直追問「到底有多糟？」讓人更煩。', left: '小佳', right: '同學', leftRole: '沒有尊重對方感受', rightRole: '心情不好想保留空間', answer: [80, 20] },
-      { text: '老師請大家收操，小任故意倒在地上說「我不要」。', left: '小任', right: '老師', leftRole: '故意拖延不配合', rightRole: '提醒課程流程', answer: [85, 15] },
-      { text: '姐姐在寫作業，弟弟一直唱歌打擾，姐姐最後用手摀住弟弟嘴巴。', left: '姐姐', right: '弟弟', leftRole: '用不舒服的方式制止', rightRole: '一直唱歌打擾人', answer: [45, 55] },
-      { text: '小朋友看到新同學說話比較慢，就模仿他的聲音。', left: '小朋友', right: '新同學', leftRole: '模仿取笑別人', rightRole: '說話速度比較慢', answer: [95, 5] },
-      { text: '媽媽請小安幫忙拿筷子，小安說「你自己拿」後繼續玩。', left: '小安', right: '媽媽', leftRole: '不願意協助家人', rightRole: '請求簡單幫忙', answer: [85, 15] },
-      { text: '老師不小心叫錯名字，同學立刻拍桌大喊「你都記不起來！」', left: '同學', right: '老師', leftRole: '情緒太大又沒禮貌', rightRole: '不小心叫錯名字', answer: [70, 30] },
-      { text: '同學說鞋帶鬆了走很慢，小志卻拉著他跑。', left: '小志', right: '同學', leftRole: '沒有注意安全與感受', rightRole: '提醒自己鞋帶鬆了', answer: [90, 10] },
-      { text: '弟弟不小心打翻果汁，爸爸先拿抹布一起清理，弟弟卻躲起來不幫忙。', left: '弟弟', right: '爸爸', leftRole: '逃避一起收拾', rightRole: '冷靜幫忙處理', answer: [85, 15] },
-      { text: '同學畫圖被碰到很生氣，但先深呼吸再說「請小心一點」。', left: '同學', right: '另一位同學', leftRole: '有情緒但能好好表達', rightRole: '不小心碰到別人作品', answer: [40, 60] },
-      { text: '老師請小潔把玩具借給別人，小潔說「可以輪流五分鐘」。', left: '小潔', right: '同學', leftRole: '願意分享並提出方法', rightRole: '想一起玩玩具', answer: [60, 40] },
-      { text: '哥哥看到妹妹找不到書包很著急，卻說「誰叫你亂放」。', left: '哥哥', right: '妹妹', leftRole: '沒有先安慰就責怪', rightRole: '把書包放亂了', answer: [60, 40] },
-      { text: '小安輸了遊戲，直接把棋盤掀翻說不玩了。', left: '小安', right: '對手同學', leftRole: '輸了就掀棋盤', rightRole: '一起玩遊戲', answer: [95, 5] },
-      { text: '爸媽在討論事情，小峰一直插話，爸爸請他等一下，他卻更大聲。', left: '小峰', right: '爸爸', leftRole: '沒有等待還提高音量', rightRole: '請孩子稍等', answer: [85, 15] },
-      { text: '同學的便當看起來和平常不一樣，小芸說「這聞起來好怪」。', left: '小芸', right: '同學', leftRole: '批評別人的食物', rightRole: '帶來不同口味便當', answer: [85, 15] },
-      { text: '小軍借了故事書後書角折到了，他主動道歉並一起貼好。', left: '小軍', right: '同學', leftRole: '有失誤但願意負責', rightRole: '借出故事書', answer: [35, 15] },
-      { text: '老師說今天不能到操場，小凱生氣把鉛筆盒摔到地上。', left: '小凱', right: '老師', leftRole: '用摔東西表達失望', rightRole: '因天氣調整活動', answer: [90, 10] },
-      { text: '姊姊在看書，弟弟一直問問題，姊姊溫柔說「等我看完這頁」。', left: '姊姊', right: '弟弟', leftRole: '有禮貌地表達需要時間', rightRole: '想要別人陪他說話', answer: [10, 20] },
-      { text: '同學說自己今天很累，小宏還硬拉他去玩追逐遊戲。', left: '小宏', right: '同學', leftRole: '沒有尊重別人的身體感受', rightRole: '表達自己很累', answer: [90, 10] },
-      { text: '媽媽正在煮飯，小琪一直伸手去碰熱鍋，媽媽趕快大聲阻止。', left: '小琪', right: '媽媽', leftRole: '靠近危險物品', rightRole: '為了安全大聲阻止', answer: [70, 30] },
-      { text: '同學借不到膠水有點失望，小恩主動說「我用完再借你」。', left: '小恩', right: '同學', leftRole: '願意分享並說明', rightRole: '想借膠水', answer: [10, 15] },
-      { text: '小方看到朋友沒被選進隊伍，就說「我們下次一起練習」。', left: '小方', right: '朋友', leftRole: '有同理心地安慰人', rightRole: '沒被選進隊伍而失落', answer: [10, 20] },
-      { text: '阿哲因為被提醒作業沒寫完，就故意把作業本揉成一團。', left: '阿哲', right: '老師', leftRole: '用破壞東西表達情緒', rightRole: '提醒作業進度', answer: [90, 10] },
-      { text: '兩個孩子都想坐窗邊，姐姐先說可以輪流，弟弟還是一直哭鬧。', left: '姐姐', right: '弟弟', leftRole: '提出公平方法', rightRole: '持續哭鬧不接受', answer: [20, 80] }
-    ];
-
+    const STORAGE_KEY = 'sel-puzzle-question-bank-v2';
     const stickers = ['⭐', '🌟', '💖', '🏅', '🎉', '🦄', '🐻', '🍀'];
+    const categories = ['同儕衝突', '師生衝突', '家庭衝突', '同理心'];
     const encouragements = {
-      excellent: ['做得很好！你有仔細想每個人的感受。', '太棒了！你的判斷很接近參考答案。', '你很會觀察衝突裡的責任和情緒喔！'],
+      excellent: ['做得很好！你有仔細想每個人的感受。', '太棒了！你的判斷很接近參考答案。', '你很會分辨衝突中的責任和情緒喔！'],
       good: ['很不錯！再多想一下其中一個人的感受會更完整。', '你已經抓到大方向了，繼續加油！', '判斷很接近，再練習一下會更厲害。'],
       guide: ['可以再想想：誰先做了不恰當的事？', '再看看兩個人的感受，調整一下會更好。', '別急，我們一起練習分辨責任和同理心。']
     };
 
-    let queue = [];
-    let current = null;
-    let questionNumber = 0;
-    let stars = 0;
-    let streak = 0;
-    let audioContext = null;
+    const DEFAULT_QUESTION_BANK = [
+      { id: 'q001', category: '同儕衝突', scenario: '小明被同學撞到後很生氣，馬上推了對方一下。', leftName: '小明', rightName: '同學', leftHint: '被撞到後生氣推人', rightHint: '走路太急撞到別人', leftImage: '', rightImage: '', answer: [70, 30] },
+      { id: 'q002', category: '同儕衝突', scenario: '兩個同學都想玩同一顆球，小華直接把球搶走。', leftName: '小華', rightName: '同學', leftHint: '直接搶走球', rightHint: '也想玩球但沒先商量', leftImage: '', rightImage: '', answer: [75, 25] },
+      { id: 'q003', category: '師生衝突', scenario: '上課時，小安一直講話，老師提醒後他還大聲回嘴。', leftName: '小安', rightName: '老師', leftHint: '不聽提醒還回嘴', rightHint: '提醒學生安靜上課', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q004', category: '家庭衝突', scenario: '妹妹不小心碰倒積木，哥哥立刻罵她很笨。', leftName: '哥哥', rightName: '妹妹', leftHint: '用難聽話罵人', rightHint: '不小心碰倒積木', leftImage: '', rightImage: '', answer: [80, 20] },
+      { id: 'q005', category: '家庭衝突', scenario: '媽媽提醒阿豪要收玩具，阿豪故意說「我不要！」', leftName: '阿豪', rightName: '媽媽', leftHint: '故意不收玩具', rightHint: '提醒要整理', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q006', category: '同理心', scenario: '同學考不好在哭，小傑卻哈哈笑說「你好笨喔」。', leftName: '小傑', rightName: '同學', leftHint: '嘲笑別人的難過', rightHint: '因考不好而哭', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q007', category: '師生衝突', scenario: '老師正在說明活動規則，小宇一直插話說自己最厲害。', leftName: '小宇', rightName: '老師', leftHint: '一直插話', rightHint: '說明班級活動', leftImage: '', rightImage: '', answer: [80, 20] },
+      { id: 'q008', category: '家庭衝突', scenario: '弟弟想借色筆，姐姐沒回答就把色筆抱在懷裡不給碰。', leftName: '姐姐', rightName: '弟弟', leftHint: '不說明就拒絕分享', rightHint: '想借色筆沒先問清楚', leftImage: '', rightImage: '', answer: [65, 35] },
+      { id: 'q009', category: '同儕衝突', scenario: '小美排隊時被後面同學一直擠，她轉身大叫「不要靠近我！」', leftName: '小美', rightName: '後面同學', leftHint: '大聲吼叫', rightHint: '排隊一直往前擠', leftImage: '', rightImage: '', answer: [40, 60] },
+      { id: 'q010', category: '家庭衝突', scenario: '爸媽正在講電話，小樂一直拉著媽媽要她陪玩。', leftName: '小樂', rightName: '媽媽', leftHint: '沒有等待，持續打擾', rightHint: '正在忙碌沒先說明', leftImage: '', rightImage: '', answer: [70, 30] },
+      { id: 'q011', category: '同儕衝突', scenario: '小志借了同學橡皮擦，結果故意藏起來不還。', leftName: '小志', rightName: '同學', leftHint: '故意不還東西', rightHint: '借出橡皮擦', leftImage: '', rightImage: '', answer: [95, 5] },
+      { id: 'q012', category: '師生衝突', scenario: '老師請大家安靜畫圖，小琳覺得無聊就一直拍桌子。', leftName: '小琳', rightName: '老師', leftHint: '故意拍桌子影響別人', rightHint: '帶領課堂活動', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q013', category: '家庭衝突', scenario: '哥哥心情不好把門關很大聲，弟弟學他也用力甩門。', leftName: '哥哥', rightName: '弟弟', leftHint: '先大聲甩門', rightHint: '跟著模仿甩門', leftImage: '', rightImage: '', answer: [55, 45] },
+      { id: 'q014', category: '同儕衝突', scenario: '同學不小心把水打翻在小杰桌上，小杰直接把對方的書丟地上。', leftName: '小杰', rightName: '同學', leftHint: '生氣把書丟地上', rightHint: '不小心打翻水', leftImage: '', rightImage: '', answer: [75, 25] },
+      { id: 'q015', category: '同理心', scenario: '外婆走路慢，小凱一直催她快一點，還翻白眼。', leftName: '小凱', rightName: '外婆', leftHint: '不體諒長輩行動慢', rightHint: '走路比較慢', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q016', category: '同儕衝突', scenario: '小安看到同學的新鉛筆很漂亮，沒問就直接拿去用。', leftName: '小安', rightName: '同學', leftHint: '沒問就拿別人東西', rightHint: '擁有自己的鉛筆', leftImage: '', rightImage: '', answer: [95, 5] },
+      { id: 'q017', category: '家庭衝突', scenario: '家人正在休息，小福在客廳尖叫跑來跑去。', leftName: '小福', rightName: '家人', leftHint: '沒有注意別人正在休息', rightHint: '想安靜休息', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q018', category: '同理心', scenario: '同學不會跳繩，小晴一直說「你怎麼那麼慢」。', leftName: '小晴', rightName: '同學', leftHint: '說話傷人', rightHint: '學習跳繩比較慢', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q019', category: '師生衝突', scenario: '老師請小傑排好椅子，小傑說「為什麼都叫我做？」', leftName: '小傑', rightName: '老師', leftHint: '不願合作還抱怨', rightHint: '請同學幫忙整理', leftImage: '', rightImage: '', answer: [75, 25] },
+      { id: 'q020', category: '家庭衝突', scenario: '妹妹拿錯哥哥的作業本，哥哥直接把妹妹手推開。', leftName: '哥哥', rightName: '妹妹', leftHint: '用推的方式處理', rightHint: '拿錯別人的作業本', leftImage: '', rightImage: '', answer: [65, 35] },
+      { id: 'q021', category: '同理心', scenario: '午餐時間，同學忘記帶湯匙，小豪故意把自己的藏起來不借。', leftName: '小豪', rightName: '同學', leftHint: '故意不幫忙', rightHint: '忘記帶湯匙', leftImage: '', rightImage: '', answer: [80, 20] },
+      { id: 'q022', category: '同理心', scenario: '小琪做勞作失敗很難過，旁邊同學說「反正你本來就不會」。', leftName: '旁邊同學', rightName: '小琪', leftHint: '沒有同理心還貶低人', rightHint: '因失敗感到難過', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q023', category: '家庭衝突', scenario: '爸爸提醒小恩先寫功課再看電視，小恩一直假裝沒聽到。', leftName: '小恩', rightName: '爸爸', leftHint: '逃避該做的事', rightHint: '提醒先完成功課', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q024', category: '同儕衝突', scenario: '兩位同學都在生氣，小川先說「對不起」，另一位還繼續罵。', leftName: '小川', rightName: '另一位同學', leftHint: '先嘗試道歉', rightHint: '持續責罵對方', leftImage: '', rightImage: '', answer: [25, 75] },
+      { id: 'q025', category: '同理心', scenario: '同學跌倒了，小怡看到卻說「好好笑」，沒有幫忙。', leftName: '小怡', rightName: '同學', leftHint: '嘲笑別人跌倒', rightHint: '不小心跌倒', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q026', category: '師生衝突', scenario: '老師安排換位子，小成不高興，就把椅子踢得很大聲。', leftName: '小成', rightName: '老師', leftHint: '用踢椅子表達不滿', rightHint: '安排班級座位', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q027', category: '家庭衝突', scenario: '媽媽正在照顧生病的弟弟，小涵一直說媽媽偏心。', leftName: '小涵', rightName: '媽媽', leftHint: '沒有理解家人需求', rightHint: '照顧生病孩子', leftImage: '', rightImage: '', answer: [75, 25] },
+      { id: 'q028', category: '同儕衝突', scenario: '小廷借同學剪刀後忘記還，同學提醒時他立刻還並道歉。', leftName: '小廷', rightName: '同學', leftHint: '忘記歸還但願意改正', rightHint: '提醒對方記得還', leftImage: '', rightImage: '', answer: [70, 30] },
+      { id: 'q029', category: '同儕衝突', scenario: '排隊洗手時，小建一直插隊，前面的同學忍不住說「請你排後面」。', leftName: '小建', rightName: '前面同學', leftHint: '一直插隊', rightHint: '提醒要排隊', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q030', category: '同理心', scenario: '阿嬤不會用手機，小芸很不耐煩地說「你都不會啦」。', leftName: '小芸', rightName: '阿嬤', leftHint: '沒有耐心又傷人', rightHint: '需要幫忙學手機', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q031', category: '師生衝突', scenario: '老師提醒要輕聲，小豪卻故意學老師語氣逗同學笑。', leftName: '小豪', rightName: '老師', leftHint: '故意模仿取笑', rightHint: '提醒班級秩序', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q032', category: '家庭衝突', scenario: '妹妹想一起玩，哥哥說「不行」後還把門關起來。', leftName: '哥哥', rightName: '妹妹', leftHint: '拒絕又故意排擠', rightHint: '想一起玩', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q033', category: '同儕衝突', scenario: '小威忘了帶彩色筆，借用後有說謝謝也小心使用。', leftName: '小威', rightName: '同學', leftHint: '借用但有禮貌', rightHint: '願意借出彩色筆', leftImage: '', rightImage: '', answer: [45, 55] },
+      { id: 'q034', category: '同理心', scenario: '小庭發現同學午餐少一樣水果，就故意在旁邊炫耀自己有兩份。', leftName: '小庭', rightName: '同學', leftHint: '故意炫耀刺激別人', rightHint: '午餐水果較少', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q035', category: '家庭衝突', scenario: '爸爸在開車，後座的小羽一直拍椅背說快一點。', leftName: '小羽', rightName: '爸爸', leftHint: '不顧安全一直催促', rightHint: '專心開車', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q036', category: '同理心', scenario: '同學說今天心情不好，小佳卻一直追問「到底有多糟？」讓人更煩。', leftName: '小佳', rightName: '同學', leftHint: '沒有尊重對方感受', rightHint: '心情不好想保留空間', leftImage: '', rightImage: '', answer: [80, 20] },
+      { id: 'q037', category: '師生衝突', scenario: '老師請大家收操，小任故意倒在地上說「我不要」。', leftName: '小任', rightName: '老師', leftHint: '故意拖延不配合', rightHint: '提醒課程流程', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q038', category: '家庭衝突', scenario: '姐姐在寫作業，弟弟一直唱歌打擾，姐姐最後用手摀住弟弟嘴巴。', leftName: '姐姐', rightName: '弟弟', leftHint: '用不舒服的方式制止', rightHint: '一直唱歌打擾人', leftImage: '', rightImage: '', answer: [45, 55] },
+      { id: 'q039', category: '同理心', scenario: '小朋友看到新同學說話比較慢，就模仿他的聲音。', leftName: '小朋友', rightName: '新同學', leftHint: '模仿取笑別人', rightHint: '說話速度比較慢', leftImage: '', rightImage: '', answer: [95, 5] },
+      { id: 'q040', category: '家庭衝突', scenario: '媽媽請小安幫忙拿筷子，小安說「你自己拿」後繼續玩。', leftName: '小安', rightName: '媽媽', leftHint: '不願意協助家人', rightHint: '請求簡單幫忙', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q041', category: '師生衝突', scenario: '老師不小心叫錯名字，同學立刻拍桌大喊「你都記不起來！」', leftName: '同學', rightName: '老師', leftHint: '情緒太大又沒禮貌', rightHint: '不小心叫錯名字', leftImage: '', rightImage: '', answer: [70, 30] },
+      { id: 'q042', category: '同理心', scenario: '同學說鞋帶鬆了走很慢，小志卻拉著他跑。', leftName: '小志', rightName: '同學', leftHint: '沒有注意安全與感受', rightHint: '提醒自己鞋帶鬆了', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q043', category: '家庭衝突', scenario: '弟弟不小心打翻果汁，爸爸先拿抹布一起清理，弟弟卻躲起來不幫忙。', leftName: '弟弟', rightName: '爸爸', leftHint: '逃避一起收拾', rightHint: '冷靜幫忙處理', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q044', category: '同儕衝突', scenario: '同學畫圖被碰到很生氣，但先深呼吸再說「請小心一點」。', leftName: '同學', rightName: '另一位同學', leftHint: '有情緒但能好好表達', rightHint: '不小心碰到別人作品', leftImage: '', rightImage: '', answer: [40, 60] },
+      { id: 'q045', category: '同儕衝突', scenario: '老師請小潔把玩具借給別人，小潔說「可以輪流五分鐘」。', leftName: '小潔', rightName: '同學', leftHint: '願意分享並提出方法', rightHint: '想一起玩玩具', leftImage: '', rightImage: '', answer: [60, 40] },
+      { id: 'q046', category: '家庭衝突', scenario: '哥哥看到妹妹找不到書包很著急，卻說「誰叫你亂放」。', leftName: '哥哥', rightName: '妹妹', leftHint: '沒有先安慰就責怪', rightHint: '把書包放亂了', leftImage: '', rightImage: '', answer: [60, 40] },
+      { id: 'q047', category: '同儕衝突', scenario: '小安輸了遊戲，直接把棋盤掀翻說不玩了。', leftName: '小安', rightName: '對手同學', leftHint: '輸了就掀棋盤', rightHint: '一起玩遊戲', leftImage: '', rightImage: '', answer: [95, 5] },
+      { id: 'q048', category: '家庭衝突', scenario: '爸媽在討論事情，小峰一直插話，爸爸請他等一下，他卻更大聲。', leftName: '小峰', rightName: '爸爸', leftHint: '沒有等待還提高音量', rightHint: '請孩子稍等', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q049', category: '同理心', scenario: '同學的便當看起來和平常不一樣，小芸說「這聞起來好怪」。', leftName: '小芸', rightName: '同學', leftHint: '批評別人的食物', rightHint: '帶來不同口味便當', leftImage: '', rightImage: '', answer: [85, 15] },
+      { id: 'q050', category: '同儕衝突', scenario: '小軍借了故事書後書角折到了，他主動道歉並一起貼好。', leftName: '小軍', rightName: '同學', leftHint: '有失誤但願意負責', rightHint: '借出故事書', leftImage: '', rightImage: '', answer: [35, 65] },
+      { id: 'q051', category: '師生衝突', scenario: '老師說今天不能到操場，小凱生氣把鉛筆盒摔到地上。', leftName: '小凱', rightName: '老師', leftHint: '用摔東西表達失望', rightHint: '因天氣調整活動', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q052', category: '家庭衝突', scenario: '姊姊在看書，弟弟一直問問題，姊姊溫柔說「等我看完這頁」。', leftName: '姊姊', rightName: '弟弟', leftHint: '有禮貌地表達需要時間', rightHint: '想要別人陪他說話', leftImage: '', rightImage: '', answer: [30, 70] },
+      { id: 'q053', category: '同理心', scenario: '同學說自己今天很累，小宏還硬拉他去玩追逐遊戲。', leftName: '小宏', rightName: '同學', leftHint: '沒有尊重別人的身體感受', rightHint: '表達自己很累', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q054', category: '家庭衝突', scenario: '媽媽正在煮飯，小琪一直伸手去碰熱鍋，媽媽趕快大聲阻止。', leftName: '小琪', rightName: '媽媽', leftHint: '靠近危險物品', rightHint: '為了安全大聲阻止', leftImage: '', rightImage: '', answer: [70, 30] },
+      { id: 'q055', category: '同理心', scenario: '同學借不到膠水有點失望，小恩主動說「我用完再借你」。', leftName: '小恩', rightName: '同學', leftHint: '願意分享並說明', rightHint: '想借膠水', leftImage: '', rightImage: '', answer: [35, 65] },
+      { id: 'q056', category: '同理心', scenario: '小方看到朋友沒被選進隊伍，就說「我們下次一起練習」。', leftName: '小方', rightName: '朋友', leftHint: '有同理心地安慰人', rightHint: '沒被選進隊伍而失落', leftImage: '', rightImage: '', answer: [20, 80] },
+      { id: 'q057', category: '師生衝突', scenario: '阿哲因為被提醒作業沒寫完，就故意把作業本揉成一團。', leftName: '阿哲', rightName: '老師', leftHint: '用破壞東西表達情緒', rightHint: '提醒作業進度', leftImage: '', rightImage: '', answer: [90, 10] },
+      { id: 'q058', category: '家庭衝突', scenario: '兩個孩子都想坐窗邊，姐姐先說可以輪流，弟弟還是一直哭鬧。', leftName: '姐姐', rightName: '弟弟', leftHint: '提出公平方法', rightHint: '持續哭鬧不接受', leftImage: '', rightImage: '', answer: [20, 80] }
+    ];
+
+    const state = {
+      storageAvailable: true,
+      questionBank: [],
+      filteredQuestions: [],
+      currentQuestion: null,
+      gameQueue: [],
+      questionIndex: 0,
+      stars: 0,
+      streak: 0,
+      activeView: 'studentView',
+      editingId: '',
+      audioContext: null
+    };
 
     const els = {
-      questionBadge: document.getElementById('questionBadge'),
-      scoreBadge: document.getElementById('scoreBadge'),
-      streakBadge: document.getElementById('streakBadge'),
+      studentTab: document.getElementById('studentTab'),
+      adminTab: document.getElementById('adminTab'),
+      studentView: document.getElementById('studentView'),
+      adminView: document.getElementById('adminView'),
+      bankCountPill: document.getElementById('bankCountPill'),
+      storagePill: document.getElementById('storagePill'),
+      modePill: document.getElementById('modePill'),
+      questionIndex: document.getElementById('questionIndex'),
       scenarioText: document.getElementById('scenarioText'),
+      studentCategory: document.getElementById('studentCategory'),
       leftName: document.getElementById('leftName'),
       rightName: document.getElementById('rightName'),
       leftHint: document.getElementById('leftHint'),
       rightHint: document.getElementById('rightHint'),
-      leftAvatar: document.getElementById('leftAvatar'),
-      rightAvatar: document.getElementById('rightAvatar'),
+      leftImage: document.getElementById('leftImage'),
+      rightImage: document.getElementById('rightImage'),
       leftSlider: document.getElementById('leftSlider'),
       rightSlider: document.getElementById('rightSlider'),
       leftValue: document.getElementById('leftValue'),
       rightValue: document.getElementById('rightValue'),
-      submitBtn: document.getElementById('submitBtn'),
-      resetBtn: document.getElementById('resetBtn'),
+      leftCard: document.getElementById('leftCard'),
+      rightCard: document.getElementById('rightCard'),
+      submitAnswerBtn: document.getElementById('submitAnswerBtn'),
+      resetAnswerBtn: document.getElementById('resetAnswerBtn'),
+      newRandomBtn: document.getElementById('newRandomBtn'),
       feedbackText: document.getElementById('feedbackText'),
       leftCompareTitle: document.getElementById('leftCompareTitle'),
       rightCompareTitle: document.getElementById('rightCompareTitle'),
@@ -632,12 +992,88 @@
       rightCompareText: document.getElementById('rightCompareText'),
       leftBar: document.getElementById('leftBar'),
       rightBar: document.getElementById('rightBar'),
+      starCountPill: document.getElementById('starCountPill'),
+      streakPill: document.getElementById('streakPill'),
       rewardText: document.getElementById('rewardText'),
       rewardStrip: document.getElementById('rewardStrip'),
-      leftCard: document.getElementById('leftCard'),
-      rightCard: document.getElementById('rightCard'),
-      floatingStars: document.getElementById('floatingStars')
+      floatingStars: document.getElementById('floatingStars'),
+      searchInput: document.getElementById('searchInput'),
+      filterCategory: document.getElementById('filterCategory'),
+      newQuestionBtn: document.getElementById('newQuestionBtn'),
+      seedResetBtn: document.getElementById('seedResetBtn'),
+      previewCurrentBtn: document.getElementById('previewCurrentBtn'),
+      scenarioInput: document.getElementById('scenarioInput'),
+      categoryInput: document.getElementById('categoryInput'),
+      questionIdInput: document.getElementById('questionIdInput'),
+      leftNameInput: document.getElementById('leftNameInput'),
+      rightNameInput: document.getElementById('rightNameInput'),
+      leftHintInput: document.getElementById('leftHintInput'),
+      rightHintInput: document.getElementById('rightHintInput'),
+      leftImageInput: document.getElementById('leftImageInput'),
+      rightImageInput: document.getElementById('rightImageInput'),
+      leftAnswerInput: document.getElementById('leftAnswerInput'),
+      rightAnswerInput: document.getElementById('rightAnswerInput'),
+      saveQuestionBtn: document.getElementById('saveQuestionBtn'),
+      duplicateQuestionBtn: document.getElementById('duplicateQuestionBtn'),
+      deleteQuestionBtn: document.getElementById('deleteQuestionBtn'),
+      clearFormBtn: document.getElementById('clearFormBtn'),
+      exportJsonBtn: document.getElementById('exportJsonBtn'),
+      downloadJsonBtn: document.getElementById('downloadJsonBtn'),
+      importJsonBtn: document.getElementById('importJsonBtn'),
+      jsonTextarea: document.getElementById('jsonTextarea'),
+      previewCategory: document.getElementById('previewCategory'),
+      previewScenario: document.getElementById('previewScenario'),
+      previewLeftName: document.getElementById('previewLeftName'),
+      previewRightName: document.getElementById('previewRightName'),
+      previewLeftImage: document.getElementById('previewLeftImage'),
+      previewRightImage: document.getElementById('previewRightImage'),
+      previewLeftMeta: document.getElementById('previewLeftMeta'),
+      previewRightMeta: document.getElementById('previewRightMeta'),
+      questionList: document.getElementById('questionList')
     };
+
+    function safeClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function storageAvailable() {
+      try {
+        const testKey = '__sel_storage_test__';
+        localStorage.setItem(testKey, '1');
+        localStorage.removeItem(testKey);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function normalizeQuestion(raw, fallbackId = createId()) {
+      const leftAnswer = clampNumber(raw.answer?.[0] ?? raw.leftAnswer ?? 50, 0, 100);
+      const rightAnswer = clampNumber(raw.answer?.[1] ?? raw.rightAnswer ?? 100 - leftAnswer, 0, 100);
+      const normalizedLeft = clampNumber(Math.round(leftAnswer), 0, 100);
+      return {
+        id: String(raw.id || fallbackId),
+        category: categories.includes(raw.category) ? raw.category : '同儕衝突',
+        scenario: String(raw.scenario || '').trim(),
+        leftName: String(raw.leftName || '左邊角色').trim(),
+        rightName: String(raw.rightName || '右邊角色').trim(),
+        leftHint: String(raw.leftHint || '').trim(),
+        rightHint: String(raw.rightHint || '').trim(),
+        leftImage: String(raw.leftImage || '').trim(),
+        rightImage: String(raw.rightImage || '').trim(),
+        answer: [normalizedLeft, 100 - normalizedLeft]
+      };
+    }
+
+    function createId() {
+      return `q${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    }
+
+    function clampNumber(value, min, max) {
+      const num = Number(value);
+      if (Number.isNaN(num)) return min;
+      return Math.min(max, Math.max(min, num));
+    }
 
     function shuffle(items) {
       const arr = [...items];
@@ -648,94 +1084,152 @@
       return arr;
     }
 
-    function nextScenario() {
-      if (!queue.length) {
-        queue = shuffle(scenarios);
-      }
-      current = queue.pop();
-      questionNumber += 1;
-      renderScenario();
+    function saveQuestionBank() {
+      if (!state.storageAvailable) return;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.questionBank));
     }
 
-    function avatarSVG(name, side) {
-      const palette = side === 'left'
-        ? { shirt: '#ffb3c8', hair: '#7a513f', bubble: '#fff3b0' }
-        : { shirt: '#a9def9', hair: '#6d597a', bubble: '#cdeac0' };
-      const initial = name.charAt(0);
-      return `
-        <svg viewBox="0 0 220 220" role="img" aria-label="${name} 卡通人物">
-          <circle cx="110" cy="110" r="96" fill="rgba(255,255,255,0.55)"></circle>
-          <circle cx="110" cy="58" r="28" fill="${palette.hair}"></circle>
-          <ellipse cx="110" cy="88" rx="38" ry="42" fill="#ffd8c2"></ellipse>
-          <circle cx="95" cy="84" r="4" fill="#4f4039"></circle>
-          <circle cx="125" cy="84" r="4" fill="#4f4039"></circle>
-          <path d="M 95 104 Q 110 116 125 104" fill="none" stroke="#b56576" stroke-width="4" stroke-linecap="round"></path>
-          <rect x="67" y="125" width="86" height="62" rx="26" fill="${palette.shirt}"></rect>
-          <rect x="80" y="138" width="60" height="18" rx="9" fill="rgba(255,255,255,0.4)"></rect>
-          <circle cx="166" cy="56" r="20" fill="${palette.bubble}"></circle>
-          <text x="166" y="63" text-anchor="middle" font-size="18" font-weight="700" fill="#6a5d52">${initial}</text>
-          <path d="M 83 57 Q 110 24 137 57" fill="${palette.hair}"></path>
+    function loadQuestionBank() {
+      state.storageAvailable = storageAvailable();
+      els.storagePill.textContent = state.storageAvailable ? 'localStorage 已啟用' : 'localStorage 無法使用';
+
+      if (!state.storageAvailable) {
+        state.questionBank = safeClone(DEFAULT_QUESTION_BANK);
+        return;
+      }
+
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        state.questionBank = safeClone(DEFAULT_QUESTION_BANK);
+        saveQuestionBank();
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('invalid bank');
+        state.questionBank = parsed.map((item) => normalizeQuestion(item, createId()));
+      } catch (error) {
+        state.questionBank = safeClone(DEFAULT_QUESTION_BANK);
+        saveQuestionBank();
+      }
+    }
+
+    function getImageSource(name, side, customUrl) {
+      if (customUrl) return customUrl;
+      const colors = side === 'left'
+        ? { bg1: '#ffd7e4', bg2: '#fff6cc', hair: '#7b5645', shirt: '#ff9fbc', bubble: '#d9f4df' }
+        : { bg1: '#d6efff', bg2: '#fff0f7', hair: '#6a5a78', shirt: '#a5dff9', bubble: '#fff1be' };
+      const initial = encodeURIComponent((name || '?').charAt(0));
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="${name}">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${colors.bg1}" />
+              <stop offset="100%" stop-color="${colors.bg2}" />
+            </linearGradient>
+          </defs>
+          <rect width="240" height="240" rx="40" fill="url(#bg)"/>
+          <circle cx="120" cy="125" r="88" fill="rgba(255,255,255,0.55)"/>
+          <circle cx="120" cy="84" r="34" fill="${colors.hair}"/>
+          <ellipse cx="120" cy="114" rx="44" ry="50" fill="#ffd8c2"/>
+          <circle cx="103" cy="109" r="4.7" fill="#4f4039"/>
+          <circle cx="137" cy="109" r="4.7" fill="#4f4039"/>
+          <path d="M 102 130 Q 120 145 138 130" fill="none" stroke="#c06a83" stroke-width="5" stroke-linecap="round"/>
+          <path d="M 84 84 Q 120 36 156 84" fill="${colors.hair}"/>
+          <rect x="72" y="158" width="96" height="62" rx="28" fill="${colors.shirt}"/>
+          <circle cx="177" cy="70" r="24" fill="${colors.bubble}"/>
+          <text x="177" y="78" text-anchor="middle" font-size="22" font-family="Arial, sans-serif" font-weight="700" fill="#67584f">${decodeURIComponent(initial)}</text>
         </svg>`;
+      return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
     }
 
-    function updateSliderDisplays() {
-      els.leftValue.textContent = `${els.leftSlider.value}%`;
-      els.rightValue.textContent = `${els.rightSlider.value}%`;
-      els.leftBar.style.width = `${els.leftSlider.value}%`;
-      els.rightBar.style.width = `${els.rightSlider.value}%`;
+    function updateBankCount() {
+      els.bankCountPill.textContent = `題庫 ${state.questionBank.length} 題`;
     }
 
-    function renderScenario() {
-      els.questionBadge.textContent = `第 ${questionNumber} 題`;
-      els.scoreBadge.textContent = `星星 ${stars} 顆`;
-      els.streakBadge.textContent = `連續鼓勵 ${streak} 次`;
-      els.scenarioText.textContent = current.text;
-      els.leftName.textContent = current.left;
-      els.rightName.textContent = current.right;
-      els.leftHint.textContent = current.leftRole;
-      els.rightHint.textContent = current.rightRole;
-      els.leftAvatar.innerHTML = avatarSVG(current.left, 'left');
-      els.rightAvatar.innerHTML = avatarSVG(current.right, 'right');
-      els.leftSlider.value = 50;
-      els.rightSlider.value = 50;
-      els.leftCompareTitle.textContent = current.left;
-      els.rightCompareTitle.textContent = current.right;
-      els.leftCompareText.textContent = `你的判斷：50%｜參考答案：${current.answer[0]}%`;
-      els.rightCompareText.textContent = `你的判斷：50%｜參考答案：${current.answer[1]}%`;
-      els.feedbackText.textContent = '先看看情境，再拖動兩個角色的責任溫度計。';
-      updateSliderDisplays();
-    }
-
-    function initAudio() {
-      if (!audioContext) {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtx) audioContext = new AudioCtx();
-      }
-      if (audioContext && audioContext.state === 'suspended') {
-        audioContext.resume();
+    function setView(viewId) {
+      state.activeView = viewId;
+      [els.studentTab, els.adminTab].forEach((tab) => tab.classList.toggle('active', tab.dataset.view === viewId));
+      [els.studentView, els.adminView].forEach((view) => view.classList.toggle('active', view.id === viewId));
+      els.modePill.textContent = `目前模式：${viewId === 'studentView' ? '前台遊戲' : '後台管理'}`;
+      if (viewId === 'studentView') renderStudentQuestion();
+      if (viewId === 'adminView') {
+        renderQuestionList();
+        updatePreviewFromForm();
       }
     }
 
-    function playTone(type) {
-      initAudio();
-      if (!audioContext) return;
-      const now = audioContext.currentTime;
-      const config = type === 'success'
-        ? [{ freq: 523.25, time: 0 }, { freq: 659.25, time: 0.08 }, { freq: 783.99, time: 0.16 }]
-        : [{ freq: 280, time: 0 }, { freq: 220, time: 0.1 }];
+    function refillGameQueue() {
+      state.gameQueue = shuffle(state.questionBank.map((item) => item.id));
+    }
 
-      config.forEach((note, idx) => {
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        osc.type = type === 'success' ? 'triangle' : 'sawtooth';
-        osc.frequency.value = note.freq;
-        gain.gain.setValueAtTime(0.0001, now + note.time);
-        gain.gain.exponentialRampToValueAtTime(type === 'success' ? 0.14 : 0.09, now + note.time + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + note.time + (type === 'success' ? 0.22 : 0.18));
-        osc.connect(gain).connect(audioContext.destination);
-        osc.start(now + note.time);
-        osc.stop(now + note.time + (type === 'success' ? 0.25 : 0.2) + idx * 0.01);
-      });
+    function getQuestionById(id) {
+      return state.questionBank.find((item) => item.id === id) || null;
+    }
+
+    function nextStudentQuestion(forceNewQueue = false) {
+      if (!state.questionBank.length) {
+        state.currentQuestion = null;
+        renderStudentQuestion();
+        return;
+      }
+      if (forceNewQueue || state.gameQueue.length === 0) refillGameQueue();
+      const nextId = state.gameQueue.pop();
+      state.currentQuestion = getQuestionById(nextId) || state.questionBank[0];
+      state.questionIndex += 1;
+      renderStudentQuestion();
+    }
+
+    function renderStudentQuestion() {
+      const q = state.currentQuestion;
+      if (!q) {
+        els.questionIndex.textContent = '0';
+        els.scenarioText.textContent = '目前沒有題目，請先到後台新增題目。';
+        els.studentCategory.textContent = '🌈 尚無題目';
+        return;
+      }
+
+      els.questionIndex.textContent = String(state.questionIndex);
+      els.studentCategory.textContent = `🌈 ${q.category}`;
+      els.scenarioText.textContent = q.scenario;
+      els.leftName.textContent = q.leftName;
+      els.rightName.textContent = q.rightName;
+      els.leftHint.textContent = q.leftHint || '請想想這個角色的感受。';
+      els.rightHint.textContent = q.rightHint || '請想想這個角色的感受。';
+      els.leftImage.src = getImageSource(q.leftName, 'left', q.leftImage);
+      els.rightImage.src = getImageSource(q.rightName, 'right', q.rightImage);
+      els.leftImage.alt = `${q.leftName} 的圖片`;
+      els.rightImage.alt = `${q.rightName} 的圖片`;
+      setStudentSliders(50, true);
+      els.feedbackText.textContent = '先看看情境，再拖動左右兩個角色的責任比例。';
+      els.leftCompareTitle.textContent = q.leftName;
+      els.rightCompareTitle.textContent = q.rightName;
+      els.leftCompareText.textContent = `你的判斷：50%｜參考答案：${q.answer[0]}%`;
+      els.rightCompareText.textContent = `你的判斷：50%｜參考答案：${q.answer[1]}%`;
+      els.leftBar.style.width = '50%';
+      els.rightBar.style.width = '50%';
+      updateGameStats();
+    }
+
+    function setStudentSliders(leftValue, silent = false) {
+      const left = clampNumber(leftValue, 0, 100);
+      const right = 100 - left;
+      els.leftSlider.value = String(left);
+      els.rightSlider.value = String(right);
+      els.leftValue.textContent = `${left}%`;
+      els.rightValue.textContent = `${right}%`;
+      if (!silent && state.currentQuestion) {
+        els.leftCompareText.textContent = `你的判斷：${left}%｜參考答案：${state.currentQuestion.answer[0]}%`;
+        els.rightCompareText.textContent = `你的判斷：${right}%｜參考答案：${state.currentQuestion.answer[1]}%`;
+      }
+      els.leftBar.style.width = `${left}%`;
+      els.rightBar.style.width = `${right}%`;
+    }
+
+    function updateGameStats() {
+      els.starCountPill.textContent = `星星 ${state.stars} 顆`;
+      els.streakPill.textContent = `連續鼓勵 ${state.streak} 次`;
     }
 
     function randomItem(list) {
@@ -743,13 +1237,11 @@
     }
 
     function addSticker(symbol) {
-      const sticker = document.createElement('span');
-      sticker.className = 'sticker';
-      sticker.textContent = symbol;
-      els.rewardStrip.prepend(sticker);
-      while (els.rewardStrip.children.length > 14) {
-        els.rewardStrip.removeChild(els.rewardStrip.lastChild);
-      }
+      const node = document.createElement('span');
+      node.className = 'sticker';
+      node.textContent = symbol;
+      els.rewardStrip.prepend(node);
+      while (els.rewardStrip.children.length > 16) els.rewardStrip.removeChild(els.rewardStrip.lastChild);
     }
 
     function launchStars(count = 8) {
@@ -757,101 +1249,409 @@
         const star = document.createElement('span');
         star.className = 'floating-star';
         star.textContent = i % 2 === 0 ? '⭐' : '✨';
-        star.style.left = `${10 + Math.random() * 80}%`;
-        star.style.top = `${45 + Math.random() * 30}%`;
-        star.style.animationDelay = `${Math.random() * 0.15}s`;
+        star.style.left = `${8 + Math.random() * 84}%`;
+        star.style.top = `${40 + Math.random() * 36}%`;
+        star.style.animationDelay = `${Math.random() * 0.12}s`;
         els.floatingStars.appendChild(star);
         setTimeout(() => star.remove(), 1400);
       }
     }
 
-    function evaluateAnswer() {
+    function initAudio() {
+      if (!state.audioContext) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) state.audioContext = new AudioContextClass();
+      }
+      if (state.audioContext && state.audioContext.state === 'suspended') state.audioContext.resume();
+    }
+
+    function playTone(type) {
+      initAudio();
+      if (!state.audioContext) return;
+      const now = state.audioContext.currentTime;
+      const notes = type === 'success'
+        ? [{ f: 523.25, t: 0 }, { f: 659.25, t: 0.08 }, { f: 783.99, t: 0.16 }]
+        : [{ f: 280, t: 0 }, { f: 220, t: 0.1 }];
+
+      notes.forEach((note, index) => {
+        const osc = state.audioContext.createOscillator();
+        const gain = state.audioContext.createGain();
+        osc.type = type === 'success' ? 'triangle' : 'sawtooth';
+        osc.frequency.value = note.f;
+        gain.gain.setValueAtTime(0.0001, now + note.t);
+        gain.gain.exponentialRampToValueAtTime(type === 'success' ? 0.14 : 0.09, now + note.t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + note.t + (type === 'success' ? 0.22 : 0.19));
+        osc.connect(gain).connect(state.audioContext.destination);
+        osc.start(now + note.t);
+        osc.stop(now + note.t + 0.25 + index * 0.01);
+      });
+    }
+
+    function evaluateStudentAnswer() {
+      if (!state.currentQuestion) return;
+      const [leftAnswer, rightAnswer] = state.currentQuestion.answer;
       const leftGuess = Number(els.leftSlider.value);
       const rightGuess = Number(els.rightSlider.value);
-      const [leftAnswer, rightAnswer] = current.answer;
       const diff = Math.abs(leftGuess - leftAnswer) + Math.abs(rightGuess - rightAnswer);
       let tier = 'guide';
-
       if (diff <= 20) tier = 'excellent';
-      else if (diff <= 45) tier = 'good';
+      else if (diff <= 44) tier = 'good';
 
       if (tier === 'excellent') {
-        stars += 3;
-        streak += 1;
+        state.stars += 3;
+        state.streak += 1;
         playTone('success');
         launchStars(10);
-        addSticker(randomItem(stickers));
         addSticker('⭐');
+        addSticker(randomItem(stickers));
       } else if (tier === 'good') {
-        stars += 2;
-        streak += 1;
+        state.stars += 2;
+        state.streak += 1;
         playTone('success');
         launchStars(6);
         addSticker(randomItem(stickers));
       } else {
-        stars += 1;
-        streak = 0;
+        state.stars += 1;
+        state.streak = 0;
         playTone('retry');
         addSticker('💡');
       }
 
-      const feedback = randomItem(encouragements[tier]);
-      els.feedbackText.textContent = `${feedback} 參考比例是：${current.left}${leftAnswer}%、${current.right}${rightAnswer}%。`;
+      els.feedbackText.textContent = `${randomItem(encouragements[tier])} 參考比例是：${state.currentQuestion.leftName}${leftAnswer}%、${state.currentQuestion.rightName}${rightAnswer}%。`;
       els.leftCompareText.textContent = `你的判斷：${leftGuess}%｜參考答案：${leftAnswer}%`;
       els.rightCompareText.textContent = `你的判斷：${rightGuess}%｜參考答案：${rightAnswer}%`;
-      els.scoreBadge.textContent = `星星 ${stars} 顆`;
-      els.streakBadge.textContent = `連續鼓勵 ${streak} 次`;
       els.rewardText.textContent = tier === 'guide'
         ? '有努力就很棒！看看提示，再試下一題。'
         : '你得到新的貼紙獎勵，繼續用同理心思考吧！';
-
-      setTimeout(nextScenario, 2200);
+      updateGameStats();
+      setTimeout(() => nextStudentQuestion(), 2200);
     }
 
-    function resetCurrent() {
-      els.leftSlider.value = 50;
-      els.rightSlider.value = 50;
-      updateSliderDisplays();
-      els.feedbackText.textContent = '已幫你重設成本題中間值，想一想後再作答。';
-      els.leftCompareText.textContent = `你的判斷：50%｜參考答案：${current.answer[0]}%`;
-      els.rightCompareText.textContent = `你的判斷：50%｜參考答案：${current.answer[1]}%`;
-    }
-
-    function setActiveCard(target) {
+    function setActivePlayerCard(target) {
       els.leftCard.classList.toggle('active', target === 'left');
       els.rightCard.classList.toggle('active', target === 'right');
     }
 
-    ['input', 'change'].forEach(evt => {
-      els.leftSlider.addEventListener(evt, () => {
-        setActiveCard('left');
-        updateSliderDisplays();
-      });
-      els.rightSlider.addEventListener(evt, () => {
-        setActiveCard('right');
-        updateSliderDisplays();
-      });
-    });
+    function renderCategoryOptions() {
+      const optionMarkup = categories.map((category) => `<option value="${category}">${category}</option>`).join('');
+      els.categoryInput.innerHTML = optionMarkup;
+      els.filterCategory.innerHTML = `<option value="all">全部分類</option>${optionMarkup}`;
+    }
 
-    [['leftCard', 'left'], ['rightCard', 'right']].forEach(([key, side]) => {
-      els[key].addEventListener('click', () => {
-        setActiveCard(side);
-        els[side === 'left' ? 'leftSlider' : 'rightSlider'].focus();
+    function getFormQuestion() {
+      return normalizeQuestion({
+        id: els.questionIdInput.value || createId(),
+        category: els.categoryInput.value,
+        scenario: els.scenarioInput.value,
+        leftName: els.leftNameInput.value,
+        rightName: els.rightNameInput.value,
+        leftHint: els.leftHintInput.value,
+        rightHint: els.rightHintInput.value,
+        leftImage: els.leftImageInput.value,
+        rightImage: els.rightImageInput.value,
+        answer: [els.leftAnswerInput.value, els.rightAnswerInput.value]
+      }, createId());
+    }
+
+    function validateQuestion(question) {
+      if (!question.scenario) return '請輸入情境文字。';
+      if (!question.leftName || !question.rightName) return '請填寫左右角色名稱。';
+      return '';
+    }
+
+    function loadQuestionIntoForm(question) {
+      state.editingId = question.id;
+      els.questionIdInput.value = question.id;
+      els.scenarioInput.value = question.scenario;
+      els.categoryInput.value = question.category;
+      els.leftNameInput.value = question.leftName;
+      els.rightNameInput.value = question.rightName;
+      els.leftHintInput.value = question.leftHint;
+      els.rightHintInput.value = question.rightHint;
+      els.leftImageInput.value = question.leftImage;
+      els.rightImageInput.value = question.rightImage;
+      els.leftAnswerInput.value = String(question.answer[0]);
+      els.rightAnswerInput.value = String(question.answer[1]);
+      updatePreviewFromForm();
+    }
+
+    function clearForm() {
+      state.editingId = '';
+      els.questionIdInput.value = createId();
+      els.scenarioInput.value = '';
+      els.categoryInput.value = categories[0];
+      els.leftNameInput.value = '';
+      els.rightNameInput.value = '';
+      els.leftHintInput.value = '';
+      els.rightHintInput.value = '';
+      els.leftImageInput.value = '';
+      els.rightImageInput.value = '';
+      els.leftAnswerInput.value = '50';
+      els.rightAnswerInput.value = '50';
+      updatePreviewFromForm();
+    }
+
+    function updatePreviewFromForm() {
+      const question = getFormQuestion();
+      els.previewCategory.textContent = `🌈 ${question.category}`;
+      els.previewScenario.textContent = question.scenario || '請在左側輸入情境文字。';
+      els.previewLeftName.textContent = question.leftName || '左邊角色';
+      els.previewRightName.textContent = question.rightName || '右邊角色';
+      els.previewLeftImage.src = getImageSource(question.leftName, 'left', question.leftImage);
+      els.previewRightImage.src = getImageSource(question.rightName, 'right', question.rightImage);
+      els.previewLeftMeta.textContent = `${question.leftHint || '請填寫左邊角色提示'}｜責任 ${question.answer[0]}%`;
+      els.previewRightMeta.textContent = `${question.rightHint || '請填寫右邊角色提示'}｜責任 ${question.answer[1]}%`;
+    }
+
+    function renderQuestionList() {
+      const search = els.searchInput.value.trim().toLowerCase();
+      const category = els.filterCategory.value;
+
+      state.filteredQuestions = state.questionBank.filter((question) => {
+        const matchCategory = category === 'all' || question.category === category;
+        const haystack = [question.scenario, question.leftName, question.rightName, question.category].join(' ').toLowerCase();
+        const matchSearch = !search || haystack.includes(search);
+        return matchCategory && matchSearch;
       });
-      els[key].addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          setActiveCard(side);
+
+      if (!state.filteredQuestions.length) {
+        els.questionList.innerHTML = '<div class="empty-state">找不到符合條件的題目，試試更換關鍵字或新增新題目。</div>';
+        return;
+      }
+
+      els.questionList.innerHTML = state.filteredQuestions.map((question) => `
+        <article class="admin-list-item">
+          <div class="admin-item-head">
+            <div>
+              <h3>${escapeHtml(question.leftName)} vs ${escapeHtml(question.rightName)}</h3>
+              <div class="list-meta">ID：${escapeHtml(question.id)}</div>
+            </div>
+            <span class="tag">🌈 ${escapeHtml(question.category)}</span>
+          </div>
+          <p class="scenario-snippet">${escapeHtml(question.scenario)}</p>
+          <div class="helper-text">責任比例：${question.leftName} ${question.answer[0]}% ／ ${question.rightName} ${question.answer[1]}%</div>
+          <div class="button-row">
+            <button class="btn btn-secondary" type="button" data-action="edit" data-id="${question.id}">載入編輯</button>
+            <button class="btn btn-ghost" type="button" data-action="preview" data-id="${question.id}">預覽到表單</button>
+            <button class="btn btn-danger" type="button" data-action="delete" data-id="${question.id}">刪除</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function saveFormQuestion(asDuplicate = false) {
+      const question = getFormQuestion();
+      const error = validateQuestion(question);
+      if (error) {
+        alert(error);
+        return;
+      }
+
+      if (asDuplicate || !state.editingId) {
+        question.id = createId();
+        state.questionBank.unshift(question);
+      } else {
+        const index = state.questionBank.findIndex((item) => item.id === state.editingId);
+        if (index >= 0) state.questionBank[index] = question;
+        else state.questionBank.unshift(question);
+      }
+
+      state.editingId = question.id;
+      saveQuestionBank();
+      updateBankCount();
+      loadQuestionIntoForm(question);
+      renderQuestionList();
+      refillGameQueue();
+      if (!state.currentQuestion) nextStudentQuestion(true);
+      alert(asDuplicate ? '已複製成新題目並儲存。' : '題目已儲存。');
+    }
+
+    function deleteQuestion(id = state.editingId) {
+      if (!id) {
+        alert('請先選擇要刪除的題目。');
+        return;
+      }
+      const target = getQuestionById(id);
+      if (!target) {
+        alert('找不到這筆題目。');
+        return;
+      }
+      const confirmed = confirm(`確定要刪除題目「${target.scenario.slice(0, 24)}...」嗎？`);
+      if (!confirmed) return;
+      state.questionBank = state.questionBank.filter((item) => item.id !== id);
+      saveQuestionBank();
+      updateBankCount();
+      renderQuestionList();
+      clearForm();
+      refillGameQueue();
+      if (!state.questionBank.length) state.currentQuestion = null;
+      else if (!getQuestionById(state.currentQuestion?.id)) nextStudentQuestion(true);
+    }
+
+    function exportJsonToTextarea() {
+      els.jsonTextarea.value = JSON.stringify(state.questionBank, null, 2);
+      els.jsonTextarea.focus();
+      els.jsonTextarea.select();
+    }
+
+    function downloadJsonFile() {
+      const blob = new Blob([JSON.stringify(state.questionBank, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'sel-puzzle-question-bank.json';
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJsonFromTextarea() {
+      const raw = els.jsonTextarea.value.trim();
+      if (!raw) {
+        alert('請先貼上 JSON 內容。');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('格式需為非空陣列');
+        state.questionBank = parsed.map((item) => normalizeQuestion(item, createId()));
+        saveQuestionBank();
+        updateBankCount();
+        renderQuestionList();
+        refillGameQueue();
+        state.questionIndex = 0;
+        nextStudentQuestion(true);
+        clearForm();
+        alert('題庫已匯入並儲存到 localStorage。');
+      } catch (error) {
+        alert(`JSON 匯入失敗：${error.message}`);
+      }
+    }
+
+    function resetToSeedBank() {
+      const confirmed = confirm('確定要還原成預設題庫嗎？目前 localStorage 的自訂內容會被覆蓋。');
+      if (!confirmed) return;
+      state.questionBank = safeClone(DEFAULT_QUESTION_BANK);
+      saveQuestionBank();
+      updateBankCount();
+      renderQuestionList();
+      clearForm();
+      state.questionIndex = 0;
+      refillGameQueue();
+      nextStudentQuestion(true);
+    }
+
+    function syncAnswerInputs(changedSide) {
+      if (changedSide === 'left') {
+        const left = clampNumber(els.leftAnswerInput.value, 0, 100);
+        els.leftAnswerInput.value = String(left);
+        els.rightAnswerInput.value = String(100 - left);
+      } else {
+        const right = clampNumber(els.rightAnswerInput.value, 0, 100);
+        els.rightAnswerInput.value = String(right);
+        els.leftAnswerInput.value = String(100 - right);
+      }
+      updatePreviewFromForm();
+    }
+
+    function bindEvents() {
+      document.body.addEventListener('pointerdown', initAudio, { once: true });
+
+      [els.studentTab, els.adminTab].forEach((tab) => {
+        tab.addEventListener('click', () => setView(tab.dataset.view));
+      });
+
+      els.leftSlider.addEventListener('input', () => {
+        setActivePlayerCard('left');
+        setStudentSliders(els.leftSlider.value);
+      });
+      els.rightSlider.addEventListener('input', () => {
+        setActivePlayerCard('right');
+        setStudentSliders(100 - Number(els.rightSlider.value));
+      });
+
+      [['leftCard', 'left'], ['rightCard', 'right']].forEach(([key, side]) => {
+        els[key].addEventListener('click', () => {
+          setActivePlayerCard(side);
           els[side === 'left' ? 'leftSlider' : 'rightSlider'].focus();
-        }
+        });
+        els[key].addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            setActivePlayerCard(side);
+            els[side === 'left' ? 'leftSlider' : 'rightSlider'].focus();
+          }
+        });
       });
-    });
 
-    els.submitBtn.addEventListener('click', evaluateAnswer);
-    els.resetBtn.addEventListener('click', resetCurrent);
-    document.body.addEventListener('pointerdown', initAudio, { once: true });
+      els.submitAnswerBtn.addEventListener('click', evaluateStudentAnswer);
+      els.resetAnswerBtn.addEventListener('click', () => {
+        setStudentSliders(50);
+        els.feedbackText.textContent = '已重設成中間值，再想一想後重新作答。';
+      });
+      els.newRandomBtn.addEventListener('click', () => nextStudentQuestion());
 
-    nextScenario();
+      [
+        els.scenarioInput,
+        els.categoryInput,
+        els.leftNameInput,
+        els.rightNameInput,
+        els.leftHintInput,
+        els.rightHintInput,
+        els.leftImageInput,
+        els.rightImageInput
+      ].forEach((input) => input.addEventListener('input', updatePreviewFromForm));
+      els.leftAnswerInput.addEventListener('input', () => syncAnswerInputs('left'));
+      els.rightAnswerInput.addEventListener('input', () => syncAnswerInputs('right'));
+
+      els.searchInput.addEventListener('input', renderQuestionList);
+      els.filterCategory.addEventListener('change', renderQuestionList);
+      els.newQuestionBtn.addEventListener('click', clearForm);
+      els.seedResetBtn.addEventListener('click', resetToSeedBank);
+      els.previewCurrentBtn.addEventListener('click', updatePreviewFromForm);
+      els.saveQuestionBtn.addEventListener('click', () => saveFormQuestion(false));
+      els.duplicateQuestionBtn.addEventListener('click', () => saveFormQuestion(true));
+      els.deleteQuestionBtn.addEventListener('click', () => deleteQuestion());
+      els.clearFormBtn.addEventListener('click', clearForm);
+      els.exportJsonBtn.addEventListener('click', exportJsonToTextarea);
+      els.downloadJsonBtn.addEventListener('click', downloadJsonFile);
+      els.importJsonBtn.addEventListener('click', importJsonFromTextarea);
+
+      els.questionList.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const { action, id } = button.dataset;
+        const question = getQuestionById(id);
+        if (!question) return;
+        if (action === 'edit' || action === 'preview') {
+          loadQuestionIntoForm(question);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (action === 'delete') deleteQuestion(id);
+      });
+    }
+
+    function init() {
+      renderCategoryOptions();
+      loadQuestionBank();
+      updateBankCount();
+      clearForm();
+      renderQuestionList();
+      refillGameQueue();
+      nextStudentQuestion(true);
+      bindEvents();
+    }
+
+    init();
   </script>
 </body>
 </html>
